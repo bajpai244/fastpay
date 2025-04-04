@@ -1,0 +1,13 @@
+[workspace]
+members = [
+    "crates/*"
+]
+
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+authors = ["Harsh Bajpai"]
+license = "MIT"
+description = "A based rollup written from scratch in rust, made for payments with ❤️" 
