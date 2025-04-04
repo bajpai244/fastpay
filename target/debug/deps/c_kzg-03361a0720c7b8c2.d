@@ -1,0 +1,8 @@
+/Users/harshbajpai/Desktop/Projects/fastpay/target/debug/deps/libc_kzg-03361a0720c7b8c2.rmeta: /Users/harshbajpai/.cargo/registry/src/index.crates.io-6f17d22bba15001f/c-kzg-1.0.3/bindings/rust/src/lib.rs /Users/harshbajpai/.cargo/registry/src/index.crates.io-6f17d22bba15001f/c-kzg-1.0.3/bindings/rust/src/bindings/mod.rs /Users/harshbajpai/.cargo/registry/src/index.crates.io-6f17d22bba15001f/c-kzg-1.0.3/bindings/rust/src/bindings/serde.rs /Users/harshbajpai/.cargo/registry/src/index.crates.io-6f17d22bba15001f/c-kzg-1.0.3/bindings/rust/src/bindings/./generated.rs
+
+/Users/harshbajpai/Desktop/Projects/fastpay/target/debug/deps/c_kzg-03361a0720c7b8c2.d: /Users/harshbajpai/.cargo/registry/src/index.crates.io-6f17d22bba15001f/c-kzg-1.0.3/bindings/rust/src/lib.rs /Users/harshbajpai/.cargo/registry/src/index.crates.io-6f17d22bba15001f/c-kzg-1.0.3/bindings/rust/src/bindings/mod.rs /Users/harshbajpai/.cargo/registry/src/index.crates.io-6f17d22bba15001f/c-kzg-1.0.3/bindings/rust/src/bindings/serde.rs /Users/harshbajpai/.cargo/registry/src/index.crates.io-6f17d22bba15001f/c-kzg-1.0.3/bindings/rust/src/bindings/./generated.rs
+
+/Users/harshbajpai/.cargo/registry/src/index.crates.io-6f17d22bba15001f/c-kzg-1.0.3/bindings/rust/src/lib.rs:
+/Users/harshbajpai/.cargo/registry/src/index.crates.io-6f17d22bba15001f/c-kzg-1.0.3/bindings/rust/src/bindings/mod.rs:
+/Users/harshbajpai/.cargo/registry/src/index.crates.io-6f17d22bba15001f/c-kzg-1.0.3/bindings/rust/src/bindings/serde.rs:
+/Users/harshbajpai/.cargo/registry/src/index.crates.io-6f17d22bba15001f/c-kzg-1.0.3/bindings/rust/src/bindings/./generated.rs:

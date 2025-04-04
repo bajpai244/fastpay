@@ -10,4 +10,8 @@ version = "0.1.0"
 edition = "2021"
 authors = ["Harsh Bajpai"]
 license = "MIT"
-description = "A based rollup written from scratch in rust, made for payments with ❤️" 
+description = "A based rollup written from scratch in rust, made for payments with ❤️"
+
+[workspace.dependencies]
+alloy = { version = "0.11", features = ["full"] }
+bytes = "1"
