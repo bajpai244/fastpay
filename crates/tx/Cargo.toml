@@ -9,3 +9,4 @@ description.workspace = true
 [dependencies]
 state = { path = "../state" } 
 bytes = { workspace = true }
+sha3 = { workspace = true }
