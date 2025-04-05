@@ -43,3 +43,82 @@ impl Tx {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use bytes::Bytes;
+
+    #[test]
+    fn test_new_transfer() {
+        let from = Bytes::from_static(&[1; 32]);
+        let to = Bytes::from_static(&[2; 32]);
+        let amount = 100u64;
+
+        let tx = Tx::new(from.clone(), to.clone(), amount);
+
+        assert!(tx.is_transfer());
+
+        let Tx::Transfer {
+            from: f,
+            to: t,
+            amount: a,
+        } = tx;
+
+        assert_eq!(f, from);
+        assert_eq!(t, to);
+        assert_eq!(a, amount);
+    }
+
+    #[test]
+    fn test_is_transfer() {
+        let from = Bytes::from_static(&[1; 32]);
+        let to = Bytes::from_static(&[2; 32]);
+        let amount = 100u64;
+
+        let tx = Tx::new(from, to, amount);
+        assert!(tx.is_transfer());
+    }
+
+    #[test]
+    fn test_to_bytes() {
+        let from = Bytes::from_static(&[1; 32]);
+        let to = Bytes::from_static(&[2; 32]);
+        let amount = 100u64;
+
+        let tx = Tx::new(from.clone(), to.clone(), amount);
+        let bytes = tx.to_bytes();
+
+        // Expected length: 32 (from) + 32 (to) + 8 (amount) = 72 bytes
+        assert_eq!(bytes.len(), 72);
+
+        // Verify from address
+        assert_eq!(&bytes[0..32], &from);
+        // Verify to address
+        assert_eq!(&bytes[32..64], &to);
+        // Verify amount
+        assert_eq!(&bytes[64..72], &amount.to_be_bytes());
+    }
+
+    #[test]
+    fn test_tx_hash() {
+        let from = Bytes::from_static(&[1; 32]);
+        let to = Bytes::from_static(&[2; 32]);
+        let amount = 100u64;
+
+        let tx = Tx::new(from.clone(), to.clone(), amount);
+        let hash = tx.tx_hash();
+
+        // Keccak256 hash should be 32 bytes
+        assert_eq!(hash.len(), 32);
+
+        // Hash should be deterministic
+        let hash2 = tx.tx_hash();
+        assert_eq!(hash, hash2);
+
+        // Different transaction should have different hash
+        let tx2 = Tx::new(from, to, amount + 1);
+        let hash3 = tx2.tx_hash();
+        assert_ne!(hash, hash3);
+    }
+}
