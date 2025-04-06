@@ -3,6 +3,7 @@ use bytes::{Bytes, BytesMut};
 use sha3::{Digest, Keccak256};
 use state::state::AccountAddress;
 
+#[derive(Clone)]
 pub enum Tx {
     Transfer {
         from: AccountAddress,
@@ -30,6 +31,30 @@ impl Tx {
 
     pub fn is_transfer(&self) -> bool {
         matches!(self, Self::Transfer { .. })
+    }
+
+    pub fn from(&self) -> AccountAddress {
+        match self {
+            Self::Transfer { from, .. } => from.clone(),
+        }
+    }
+
+    pub fn to(&self) -> AccountAddress {
+        match self {
+            Self::Transfer { to, .. } => to.clone(),
+        }
+    }
+
+    pub fn amount(&self) -> u64 {
+        match self {
+            Self::Transfer { amount, .. } => *amount,
+        }
+    }
+
+    pub fn signature(&self) -> Option<PrimitiveSignature> {
+        match self {
+            Self::Transfer { signature, .. } => signature.clone(),
+        }
     }
 
     pub fn tx_hash(&self) -> Bytes {
