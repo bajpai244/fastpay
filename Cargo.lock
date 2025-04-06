@@ -729,12 +729,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "anyhow"
-version = "1.0.97"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dcfed56ad506cb2c684a14971b8861fdc3baaaae314b9e5f9bb532cbe3ba7a4f"
-
-[[package]]
 name = "ark-ff"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3441,6 +3435,7 @@ dependencies = [
 name = "tx"
 version = "0.1.0"
 dependencies = [
+ "alloy",
  "bytes",
  "sha3",
  "state",
@@ -3545,11 +3540,8 @@ checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
 name = "vm"
 version = "0.1.0"
 dependencies = [
- "anyhow",
- "log",
- "serde",
- "serde_json",
- "thiserror 1.0.69",
+ "state",
+ "tx",
 ]
 
 [[package]]

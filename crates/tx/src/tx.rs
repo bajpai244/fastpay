@@ -1,3 +1,4 @@
+use alloy::primitives::PrimitiveSignature;
 use bytes::{Bytes, BytesMut};
 use sha3::{Digest, Keccak256};
 use state::state::AccountAddress;
@@ -8,12 +9,23 @@ pub enum Tx {
         // TODO: we want to allow transfer to multiple addresses, this later on needs to be an array
         to: AccountAddress,
         amount: u64,
+        signature: Option<PrimitiveSignature>,
     },
 }
 
 impl Tx {
-    pub fn new(from: AccountAddress, to: AccountAddress, amount: u64) -> Self {
-        Self::Transfer { from, to, amount }
+    pub fn new(
+        from: AccountAddress,
+        to: AccountAddress,
+        amount: u64,
+        signature: Option<PrimitiveSignature>,
+    ) -> Self {
+        Self::Transfer {
+            from,
+            to,
+            amount,
+            signature,
+        }
     }
 
     pub fn is_transfer(&self) -> bool {
@@ -34,7 +46,12 @@ impl Tx {
     pub fn to_bytes(&self) -> Bytes {
         let mut value = BytesMut::new();
         match self {
-            Self::Transfer { from, to, amount } => {
+            Self::Transfer {
+                from,
+                to,
+                amount,
+                signature: _,
+            } => {
                 value.extend_from_slice(&from);
                 value.extend_from_slice(&to);
                 value.extend_from_slice(&amount.to_be_bytes());
@@ -55,7 +72,7 @@ mod tests {
         let to = Bytes::from_static(&[2; 32]);
         let amount = 100u64;
 
-        let tx = Tx::new(from.clone(), to.clone(), amount);
+        let tx = Tx::new(from.clone(), to.clone(), amount, None);
 
         assert!(tx.is_transfer());
 
@@ -63,11 +80,13 @@ mod tests {
             from: f,
             to: t,
             amount: a,
+            signature: s,
         } = tx;
 
         assert_eq!(f, from);
         assert_eq!(t, to);
         assert_eq!(a, amount);
+        assert_eq!(s, None);
     }
 
     #[test]
@@ -76,7 +95,7 @@ mod tests {
         let to = Bytes::from_static(&[2; 32]);
         let amount = 100u64;
 
-        let tx = Tx::new(from, to, amount);
+        let tx = Tx::new(from, to, amount, None);
         assert!(tx.is_transfer());
     }
 
@@ -86,7 +105,7 @@ mod tests {
         let to = Bytes::from_static(&[2; 32]);
         let amount = 100u64;
 
-        let tx = Tx::new(from.clone(), to.clone(), amount);
+        let tx = Tx::new(from.clone(), to.clone(), amount, None);
         let bytes = tx.to_bytes();
 
         // Expected length: 32 (from) + 32 (to) + 8 (amount) = 72 bytes
@@ -106,7 +125,7 @@ mod tests {
         let to = Bytes::from_static(&[2; 32]);
         let amount = 100u64;
 
-        let tx = Tx::new(from.clone(), to.clone(), amount);
+        let tx = Tx::new(from.clone(), to.clone(), amount, None);
         let hash = tx.tx_hash();
 
         // Keccak256 hash should be 32 bytes
@@ -117,7 +136,7 @@ mod tests {
         assert_eq!(hash, hash2);
 
         // Different transaction should have different hash
-        let tx2 = Tx::new(from, to, amount + 1);
+        let tx2 = Tx::new(from, to, amount + 1, None);
         let hash3 = tx2.tx_hash();
         assert_ne!(hash, hash3);
     }
