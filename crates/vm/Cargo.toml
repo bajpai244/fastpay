@@ -9,3 +9,4 @@ description.workspace = true
 [dependencies]
 state = { path = "../state" }
 tx = { path = "../tx" }
+alloy = { workspace = true }

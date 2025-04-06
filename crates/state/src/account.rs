@@ -1,13 +1,13 @@
-use bytes::Bytes;
+use alloy::primitives::Address;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Account {
-    address: Bytes,
+    address: Address,
     balance: u64,
 }
 
 impl Account {
-    pub fn new(address: Bytes, balance: u64) -> Self {
+    pub fn new(address: Address, balance: u64) -> Self {
         Self { address, balance }
     }
 
@@ -19,7 +19,7 @@ impl Account {
         self.balance = balance;
     }
 
-    pub fn get_address(&self) -> Bytes {
+    pub fn get_address(&self) -> Address {
         self.address.clone()
     }
 }

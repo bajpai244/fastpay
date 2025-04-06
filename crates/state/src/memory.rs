@@ -2,13 +2,13 @@
 
 use std::collections::HashMap;
 
-use bytes::Bytes;
+use alloy::primitives::Address;
 
 use crate::account::Account;
 use crate::state::{State, StateError};
 
 pub struct MemoryState {
-    accounts: HashMap<Bytes, Account>,
+    accounts: HashMap<Address, Account>,
 }
 
 impl MemoryState {
@@ -20,11 +20,11 @@ impl MemoryState {
 }
 
 impl State for MemoryState {
-    fn get_account(&self, address: &Bytes) -> Option<Account> {
+    fn get_account(&self, address: &Address) -> Option<Account> {
         self.accounts.get(address).cloned()
     }
 
-    fn update_account(&mut self, address: &Bytes, account: Account) -> Result<(), StateError> {
+    fn update_account(&mut self, address: &Address, account: Account) -> Result<(), StateError> {
         self.accounts.insert(address.clone(), account);
         Ok(())
     }
@@ -33,6 +33,7 @@ impl State for MemoryState {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use alloy::signers::local::PrivateKeySigner;
 
     #[test]
     fn test_new_memory_state() {
@@ -43,14 +44,17 @@ mod tests {
     #[test]
     fn test_get_nonexistent_account() {
         let state = MemoryState::new();
-        let address = Bytes::from_static(b"0x123");
+        let signer = PrivateKeySigner::random();
+        let address = signer.address();
         assert_eq!(state.get_account(&address), None);
     }
 
     #[test]
     fn test_update_and_get_account() {
         let mut state = MemoryState::new();
-        let address = Bytes::from_static(b"0x123");
+
+        let signer = PrivateKeySigner::random();
+        let address = signer.address();
         let account = Account::new(address.clone(), 100);
 
         // Update account
@@ -65,7 +69,8 @@ mod tests {
     #[test]
     fn test_update_account_multiple_times() {
         let mut state = MemoryState::new();
-        let address = Bytes::from_static(b"0x123");
+        let signer = PrivateKeySigner::random();
+        let address = signer.address();
 
         // First update
         let account1 = Account::new(address.clone(), 100);
@@ -85,12 +90,14 @@ mod tests {
         let mut state = MemoryState::new();
 
         // Add first account
-        let address1 = Bytes::from_static(b"0x123");
+        let signer1 = PrivateKeySigner::random();
+        let address1 = signer1.address();
         let account1 = Account::new(address1.clone(), 100);
         state.update_account(&address1, account1).unwrap();
 
         // Add second account
-        let address2 = Bytes::from_static(b"0x456");
+        let signer2 = PrivateKeySigner::random();
+        let address2 = signer2.address();
         let account2 = Account::new(address2.clone(), 200);
         state.update_account(&address2, account2).unwrap();
 

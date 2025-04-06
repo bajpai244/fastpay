@@ -8,3 +8,4 @@ description.workspace = true
 
 [dependencies]
 bytes = { workspace = true }
+alloy = { workspace = true }

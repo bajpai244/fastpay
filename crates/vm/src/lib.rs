@@ -1,3 +1,4 @@
+use alloy::primitives::Address;
 use state::state::State;
 use tx::tx::Tx;
 
@@ -28,6 +29,17 @@ impl VM {
         }
 
         let signature = signature.unwrap();
+
+        let recovered_address = signature.recover_address_from_msg(tx.tx_hash());
+
+        // TODO: ideally we need to wrap this error in VM error
+        if recovered_address.is_err() {
+            return Err(VMError::InvalidTransaction(
+                "Transaction signature is invalid".to_string(),
+            ));
+        }
+
+        let recovered_address = recovered_address.unwrap();
 
         Ok(())
     }
