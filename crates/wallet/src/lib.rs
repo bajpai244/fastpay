@@ -103,14 +103,14 @@ mod tests {
         let to = Bytes::from_static(&[2; 32]);
         let amount = 100u64;
 
-        let tx = Tx::new(from.clone(), to.clone(), amount);
+        let tx = Tx::new(from.clone(), to.clone(), amount, None);
         let signature = wallet.sign_transaction(tx).unwrap();
 
         // Verify signature length
         assert_eq!(signature.as_bytes().len(), 65);
 
         // Create a new transaction with the same parameters
-        let tx2 = Tx::new(from, to, amount);
+        let tx2 = Tx::new(from, to, amount, None);
         let signature2 = wallet.sign_transaction(tx2).unwrap();
 
         // Verify we get the same signature for the same transaction
@@ -125,12 +125,14 @@ mod tests {
             Bytes::from_static(&[1; 32]),
             Bytes::from_static(&[2; 32]),
             100,
+            None,
         );
 
         let tx2 = Tx::new(
             Bytes::from_static(&[1; 32]),
             Bytes::from_static(&[2; 32]),
             200, // Different amount
+            None,
         );
 
         let signature1 = wallet.sign_transaction(tx1).unwrap();
