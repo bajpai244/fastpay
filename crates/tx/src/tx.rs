@@ -1,14 +1,13 @@
-use alloy::primitives::PrimitiveSignature;
+use alloy::primitives::{Address, PrimitiveSignature};
 use bytes::{Bytes, BytesMut};
 use sha3::{Digest, Keccak256};
-use state::state::AccountAddress;
 
 #[derive(Clone)]
 pub enum Tx {
     Transfer {
-        from: AccountAddress,
+        from: Address,
         // TODO: we want to allow transfer to multiple addresses, this later on needs to be an array
-        to: AccountAddress,
+        to: Address,
         amount: u64,
         signature: Option<PrimitiveSignature>,
     },
@@ -16,8 +15,8 @@ pub enum Tx {
 
 impl Tx {
     pub fn new(
-        from: AccountAddress,
-        to: AccountAddress,
+        from: Address,
+        to: Address,
         amount: u64,
         signature: Option<PrimitiveSignature>,
     ) -> Self {
@@ -33,13 +32,13 @@ impl Tx {
         matches!(self, Self::Transfer { .. })
     }
 
-    pub fn from(&self) -> AccountAddress {
+    pub fn from(&self) -> Address {
         match self {
             Self::Transfer { from, .. } => from.clone(),
         }
     }
 
-    pub fn to(&self) -> AccountAddress {
+    pub fn to(&self) -> Address {
         match self {
             Self::Transfer { to, .. } => to.clone(),
         }
@@ -77,8 +76,8 @@ impl Tx {
                 amount,
                 signature: _,
             } => {
-                value.extend_from_slice(&from);
-                value.extend_from_slice(&to);
+                value.extend_from_slice(&from.to_vec());
+                value.extend_from_slice(&to.to_vec());
                 value.extend_from_slice(&amount.to_be_bytes());
                 value.freeze()
             }
@@ -89,12 +88,16 @@ impl Tx {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use bytes::Bytes;
+    use alloy::signers::local::PrivateKeySigner;
 
     #[test]
     fn test_new_transfer() {
-        let from = Bytes::from_static(&[1; 32]);
-        let to = Bytes::from_static(&[2; 32]);
+        let from_signer = PrivateKeySigner::random();
+        let from = from_signer.address();
+
+        let to_signer = PrivateKeySigner::random();
+        let to = to_signer.address();
+
         let amount = 100u64;
 
         let tx = Tx::new(from.clone(), to.clone(), amount, None);
@@ -116,8 +119,12 @@ mod tests {
 
     #[test]
     fn test_is_transfer() {
-        let from = Bytes::from_static(&[1; 32]);
-        let to = Bytes::from_static(&[2; 32]);
+        let from_signer = PrivateKeySigner::random();
+        let from = from_signer.address();
+
+        let to_signer = PrivateKeySigner::random();
+        let to = to_signer.address();
+
         let amount = 100u64;
 
         let tx = Tx::new(from, to, amount, None);
@@ -126,28 +133,36 @@ mod tests {
 
     #[test]
     fn test_to_bytes() {
-        let from = Bytes::from_static(&[1; 32]);
-        let to = Bytes::from_static(&[2; 32]);
+        let from_signer = PrivateKeySigner::random();
+        let from = from_signer.address();
+
+        let to_signer = PrivateKeySigner::random();
+        let to = to_signer.address();
+
         let amount = 100u64;
 
         let tx = Tx::new(from.clone(), to.clone(), amount, None);
         let bytes = tx.to_bytes();
 
-        // Expected length: 32 (from) + 32 (to) + 8 (amount) = 72 bytes
-        assert_eq!(bytes.len(), 72);
+        // Expected length: 20 (from) + 20 (to) + 8 (amount) = 48 bytes
+        assert_eq!(bytes.len(), 48);
 
         // Verify from address
-        assert_eq!(&bytes[0..32], &from);
+        assert_eq!(&bytes[0..20], &from.to_vec());
         // Verify to address
-        assert_eq!(&bytes[32..64], &to);
+        assert_eq!(&bytes[20..40], &to.to_vec());
         // Verify amount
-        assert_eq!(&bytes[64..72], &amount.to_be_bytes());
+        assert_eq!(&bytes[40..48], &amount.to_be_bytes());
     }
 
     #[test]
     fn test_tx_hash() {
-        let from = Bytes::from_static(&[1; 32]);
-        let to = Bytes::from_static(&[2; 32]);
+        let from_signer = PrivateKeySigner::random();
+        let from = from_signer.address();
+
+        let to_signer = PrivateKeySigner::random();
+        let to = to_signer.address();
+
         let amount = 100u64;
 
         let tx = Tx::new(from.clone(), to.clone(), amount, None);
