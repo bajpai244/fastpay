@@ -41,6 +41,12 @@ impl VM {
 
         let recovered_address = recovered_address.unwrap();
 
+        if recovered_address != from {
+            return Err(VMError::InvalidTransaction(
+                "Transaction signature is invalid".to_string(),
+            ));
+        }
+
         Ok(())
     }
 }
