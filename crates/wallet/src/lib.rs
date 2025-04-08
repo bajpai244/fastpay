@@ -99,8 +99,13 @@ mod tests {
     #[test]
     fn test_sign_transaction() {
         let wallet = Wallet::random();
-        let from = Bytes::from_static(&[1; 32]);
-        let to = Bytes::from_static(&[2; 32]);
+
+        let from_signer = PrivateKeySigner::random();
+        let from = from_signer.address();
+
+        let to_signer = PrivateKeySigner::random();
+        let to = to_signer.address();
+
         let amount = 100u64;
 
         let tx = Tx::new(from.clone(), to.clone(), amount, None);
@@ -121,17 +126,16 @@ mod tests {
     fn test_sign_different_transactions() {
         let wallet = Wallet::random();
 
-        let tx1 = Tx::new(
-            Bytes::from_static(&[1; 32]),
-            Bytes::from_static(&[2; 32]),
-            100,
-            None,
-        );
+        let from_signer = PrivateKeySigner::random();
+        let from = from_signer.address();
+
+        let to_signer = PrivateKeySigner::random();
+        let to = to_signer.address();
+
+        let tx1 = Tx::new(from, to, 100, None);
 
         let tx2 = Tx::new(
-            Bytes::from_static(&[1; 32]),
-            Bytes::from_static(&[2; 32]),
-            200, // Different amount
+            from, to, 200, // Different amount
             None,
         );
 

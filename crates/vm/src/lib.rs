@@ -108,47 +108,18 @@ mod tests {
     use super::*;
     use alloy::signers::local::PrivateKeySigner;
     use alloy::signers::SignerSync;
-    use state::state::StateError;
-    use std::collections::HashMap;
-
-    // Mock state implementation for testing
-    struct MockState {
-        accounts: HashMap<Address, Account>,
-    }
-
-    impl MockState {
-        fn new() -> Self {
-            Self {
-                accounts: HashMap::new(),
-            }
-        }
-    }
-
-    impl State for MockState {
-        fn get_account(&self, address: &Address) -> Option<Account> {
-            self.accounts.get(address).cloned()
-        }
-
-        fn update_account(
-            &mut self,
-            address: &Address,
-            account: Account,
-        ) -> Result<(), StateError> {
-            self.accounts.insert(*address, account);
-            Ok(())
-        }
-    }
+    use state::memory::MemoryState;
 
     #[test]
     fn test_vm_constructor() {
-        let state = Box::new(MockState::new());
+        let state = Box::new(MemoryState::new());
         let vm = VM::new(state);
         assert!(vm.state.get_account(&Address::ZERO).is_none());
     }
 
     #[test]
     fn test_execute_valid_transaction() {
-        let mut state = MockState::new();
+        let mut state = MemoryState::new();
         let from_signer = PrivateKeySigner::random();
         let from = from_signer.address();
         let to_signer = PrivateKeySigner::random();
@@ -181,7 +152,7 @@ mod tests {
 
     #[test]
     fn test_execute_insufficient_balance() {
-        let mut state = MockState::new();
+        let mut state = MemoryState::new();
         let from_signer = PrivateKeySigner::random();
         let from = from_signer.address();
         let to_signer = PrivateKeySigner::random();
@@ -213,7 +184,7 @@ mod tests {
 
     #[test]
     fn test_execute_invalid_signature() {
-        let mut state = MockState::new();
+        let mut state = MemoryState::new();
         let from_signer = PrivateKeySigner::random();
         let from = from_signer.address();
         let to_signer = PrivateKeySigner::random();
@@ -246,7 +217,7 @@ mod tests {
 
     #[test]
     fn test_execute_nonexistent_sender() {
-        let state = MockState::new();
+        let state = MemoryState::new();
         let from_signer = PrivateKeySigner::random();
         let from = from_signer.address();
         let to_signer = PrivateKeySigner::random();
