@@ -2,7 +2,7 @@ use alloy::primitives::{Address, PrimitiveSignature};
 use bytes::{Bytes, BytesMut};
 use sha3::{Digest, Keccak256};
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub enum Tx {
     Transfer {
         from: Address,
