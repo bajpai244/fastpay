@@ -7,3 +7,5 @@ license.workspace = true
 description.workspace = true
 
 [dependencies]
+state = { path = "../state" }
+vm = { path ="../vm" }

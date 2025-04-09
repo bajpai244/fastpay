@@ -101,6 +101,14 @@ impl VM {
 
         Ok(())
     }
+
+    pub fn state(&self) -> &Box<dyn State> {
+        &self.state
+    }
+
+    pub fn state_mut(&mut self) -> &mut Box<dyn State> {
+        &mut self.state
+    }
 }
 
 #[cfg(test)]
