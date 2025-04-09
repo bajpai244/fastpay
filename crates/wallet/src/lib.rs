@@ -24,6 +24,10 @@ impl Wallet<SigningKey> {
         Self { signer }
     }
 
+    pub fn address(&self) -> alloy::primitives::Address {
+        self.signer.address()
+    }
+
     pub fn sign_message(&self, message: Bytes) -> Result<PrimitiveSignature, WalletError> {
         let signature = self.signer.sign_message_sync(&message);
 

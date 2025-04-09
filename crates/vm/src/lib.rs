@@ -15,6 +15,7 @@ impl VM {
         Self { state }
     }
 
+    // TODO: we need to make sure that we can rollback the state if the transaction fails
     pub fn execute(&mut self, tx: &Tx) -> Result<(), VMError> {
         let from = tx.from();
         let to = tx.to();

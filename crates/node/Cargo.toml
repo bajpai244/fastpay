@@ -9,3 +9,6 @@ description.workspace = true
 [dependencies]
 state = { path = "../state" }
 vm = { path ="../vm" }
+tx = { path = "../tx"  }
+alloy = { workspace = true }
+wallet = { path = "../wallet" }
