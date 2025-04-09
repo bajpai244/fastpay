@@ -21,7 +21,11 @@ pub trait EthRpc {
     async fn get_balance(&self, address: String, block: String) -> RpcResult<String>;
 
     #[method(name = "eth_getBlockByNumber")]
-    async fn get_block_by_number(&self, block_number: String, full_tx: bool) -> RpcResult<Option<Block>>;
+    async fn get_block_by_number(
+        &self,
+        block_number: String,
+        full_tx: bool,
+    ) -> RpcResult<Option<Block>>;
 
     #[method(name = "eth_blockNumber")]
     async fn block_number(&self) -> RpcResult<String>;
@@ -36,12 +40,17 @@ impl EthRpc for EthRpcServer {
         Ok("0xde0b6b3a7640000".to_string()) // 1 ETH in wei
     }
 
-    async fn get_block_by_number(&self, block_number: String, _full_tx: bool) -> RpcResult<Option<Block>> {
+    async fn get_block_by_number(
+        &self,
+        block_number: String,
+        _full_tx: bool,
+    ) -> RpcResult<Option<Block>> {
         // Return a dummy block
         Ok(Some(Block {
             number: block_number,
             hash: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef".to_string(),
-            parentHash: "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890".to_string(),
+            parentHash: "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
+                .to_string(),
             timestamp: "0x5f5e100".to_string(), // Current timestamp
             transactions: vec![],
         }))
@@ -54,9 +63,7 @@ impl EthRpc for EthRpcServer {
 }
 
 pub async fn start_rpc_server(addr: SocketAddr) -> anyhow::Result<()> {
-    let server = ServerBuilder::default()
-        .build(addr)
-        .await?;
+    let server = ServerBuilder::default().build(addr).await?;
 
     let rpc = EthRpcServer;
     let handle = server.start(rpc.into_rpc())?;

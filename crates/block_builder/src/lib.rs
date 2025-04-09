@@ -37,7 +37,7 @@ impl Block {
         hasher.update(parent_hash.as_slice());
         hasher.update(timestamp.to_be_bytes());
         hasher.update(miner.as_slice());
-        
+
         for tx in &transactions {
             hasher.update(tx.tx_hash());
         }
@@ -65,6 +65,7 @@ impl Block {
 #[derive(Debug, Clone)]
 pub struct BlockBuilder {
     blocks: Arc<RwLock<HashMap<U256, Block>>>,
+    blocks_by_hash: Arc<RwLock<HashMap<B256, Block>>>,
     latest_block_number: Arc<RwLock<U256>>,
 }
 
@@ -72,6 +73,7 @@ impl BlockBuilder {
     pub fn new() -> Self {
         Self {
             blocks: Arc::new(RwLock::new(HashMap::new())),
+            blocks_by_hash: Arc::new(RwLock::new(HashMap::new())),
             latest_block_number: Arc::new(RwLock::new(U256::ZERO)),
         }
     }
@@ -82,12 +84,14 @@ impl BlockBuilder {
         miner: Address,
     ) -> anyhow::Result<Block> {
         let mut blocks = self.blocks.write().await;
+        let mut blocks_by_hash = self.blocks_by_hash.write().await;
         let mut latest_number = self.latest_block_number.write().await;
 
         let parent_hash = if *latest_number == U256::ZERO {
             B256::ZERO
         } else {
-            blocks.get(&(*latest_number - U256::from(1)))
+            blocks
+                .get(&(*latest_number - U256::from(1)))
                 .map(|block| block.hash)
                 .unwrap_or(B256::ZERO)
         };
@@ -104,6 +108,7 @@ impl BlockBuilder {
         );
 
         blocks.insert(*latest_number, block.clone());
+        blocks_by_hash.insert(block.hash, block.clone());
         *latest_number += U256::from(1);
 
         Ok(block)
@@ -112,6 +117,11 @@ impl BlockBuilder {
     pub async fn get_block(&self, number: U256) -> Option<Block> {
         let blocks = self.blocks.read().await;
         blocks.get(&number).cloned()
+    }
+
+    pub async fn get_block_by_hash(&self, hash: B256) -> Option<Block> {
+        let blocks = self.blocks_by_hash.read().await;
+        blocks.get(&hash).cloned()
     }
 
     pub async fn get_latest_block(&self) -> Option<Block> {
@@ -139,19 +149,13 @@ mod tests {
         let miner = PrivateKeySigner::random().address();
 
         // Create first block
-        let block1 = block_builder
-            .create_block(Vec::new(), miner)
-            .await
-            .unwrap();
+        let block1 = block_builder.create_block(Vec::new(), miner).await.unwrap();
 
         assert_eq!(block1.number, U256::ZERO);
         assert_eq!(block1.parent_hash, B256::ZERO);
 
         // Create second block
-        let block2 = block_builder
-            .create_block(Vec::new(), miner)
-            .await
-            .unwrap();
+        let block2 = block_builder.create_block(Vec::new(), miner).await.unwrap();
 
         assert_eq!(block2.number, U256::from(1));
         assert_eq!(block2.parent_hash, block1.hash);
@@ -167,12 +171,15 @@ mod tests {
         let block_builder = BlockBuilder::new();
         let miner = PrivateKeySigner::random().address();
 
-        let block = block_builder
-            .create_block(Vec::new(), miner)
-            .await
-            .unwrap();
+        let block = block_builder.create_block(Vec::new(), miner).await.unwrap();
 
+        // Test retrieval by number
         let retrieved_block = block_builder.get_block(U256::ZERO).await.unwrap();
         assert_eq!(retrieved_block.hash, block.hash);
+
+        // Test retrieval by hash
+        let retrieved_by_hash = block_builder.get_block_by_hash(block.hash).await.unwrap();
+        assert_eq!(retrieved_by_hash.number, block.number);
+        assert_eq!(retrieved_by_hash.hash, block.hash);
     }
 }
